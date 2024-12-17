@@ -28,6 +28,9 @@ get_arch() {
   armv7l)
     arch='x64' # arm
     ;;
+  aarch64)
+    arch='arm64' # arm
+    ;;
   esac
 
   echo "${arch}"
