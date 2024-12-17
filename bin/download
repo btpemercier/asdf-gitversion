@@ -10,11 +10,52 @@ source "${plugin_dir}/lib/utils.bash"
 
 mkdir -p "$ASDF_DOWNLOAD_PATH"
 
-# TODO: Adapt this to proper extension and adapt extracting strategy.
 release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION.tar.gz"
 
 # Download tar.gz file to the download directory
-download_release "$ASDF_INSTALL_VERSION" "$release_file"
+get_arch() {
+  local arch
+  arch=$(uname -m | tr '[:upper:]' '[:lower:]')
+  case ${arch} in
+  arm64)
+    # If this is Apple silicon, then use the x86_64 architecture
+    if [[ "$(uname | tr '[:upper:]' '[:lower:]')" == 'darwin' ]]; then
+      arch='arm64'
+    else
+      arch='x64' # arm
+    fi
+    ;;
+  armv7l)
+    arch='x64' # arm
+    ;;
+  esac
+
+  echo "${arch}"
+}
+
+get_platform() {
+  local plat
+  plat=$(uname | tr '[:upper:]' '[:lower:]')
+  case ${plat} in
+  darwin)
+    plat='osx'
+    ;;
+  linux)
+    plat='linux'
+    ;;
+  windows)
+    plat='win'
+    ;;
+  esac
+
+  echo "${plat}"
+}
+
+arch="$(get_arch)"
+platform="$(get_platform)"
+
+# Download tar.gz file to the download directory
+download_release "$ASDF_INSTALL_VERSION" "$release_file" "$arch" "$platform"
 
 #  Extract contents of tar.gz file into the download directory
 tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" --strip-components=1 || fail "Could not extract $release_file"
