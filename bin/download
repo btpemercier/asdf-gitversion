@@ -14,44 +14,36 @@ release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION.tar.gz"
 
 # Download tar.gz file to the download directory
 get_arch() {
-  local arch
-  arch=$(uname -m | tr '[:upper:]' '[:lower:]')
-  case ${arch} in
-  arm64)
-    # If this is Apple silicon, then use the x86_64 architecture
-    if [[ "$(uname | tr '[:upper:]' '[:lower:]')" == 'darwin' ]]; then
-      arch='arm64'
-    else
-      arch='x64' # arm
-    fi
-    ;;
-  armv7l)
-    arch='x64' # arm
-    ;;
-  aarch64)
-    arch='arm64' # arm
-    ;;
-  esac
+    local arch
+    arch=$(uname -m | tr '[:upper:]' '[:lower:]')
+    case ${arch} in
+        x86_64 | amd64) arch="x64" ;;
+        aarch64 | arm64) arch="arm64" ;;
+        )
+            echo "unsupported architecture '$(uname -m)'" 1>&2
+            exit 1
+        ;;
+    esac
 
-  echo "${arch}"
+    echo "${arch}"
 }
 
 get_platform() {
-  local plat
-  plat=$(uname | tr '[:upper:]' '[:lower:]')
-  case ${plat} in
-  darwin)
-    plat='osx'
-    ;;
-  linux)
-    plat='linux'
-    ;;
-  windows)
-    plat='win'
-    ;;
-  esac
+    local plat
+    plat=$(uname | tr '[:upper:]' '[:lower:]')
+    case ${plat} in
+        darwin)
+            plat='osx'
+        ;;
+        linux)
+            plat='linux'
+        ;;
+        windows)
+            plat='win'
+        ;;
+    esac
 
-  echo "${plat}"
+    echo "${plat}"
 }
 
 arch="$(get_arch)"
